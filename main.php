@@ -9,4 +9,5 @@ $dotenv = Dotenv::createImmutable(__DIR__);
 $dotenv->load();
 
 $application = new Application();
+$application->boot();
 $application->start();
