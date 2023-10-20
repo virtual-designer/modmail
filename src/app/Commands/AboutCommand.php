@@ -15,6 +15,7 @@ class AboutCommand extends Command
 {
     protected string $name = "about";
     protected bool $interactionBased = false;
+    protected bool $public = true;
 
     public function execute(Message | Interaction $message, CommandContext $context): void
     {
@@ -22,8 +23,11 @@ class AboutCommand extends Command
         $package = InstalledVersions::getRootPackage();
         $version = $package['version'];
         $github = "[GitHub](https://github.com/virtual-designer/modmail)";
+        $author = "[Ar Rakin](https://virtual-designer.github.io/)";
+        $support = "rakinar2@onesoftnet.eu.org";
+
         $embed = embed()
-            ->setColor(0x007bff)
+            ->setColor(config()->accentColor)
             ->setAuthor("ModMail", discord()->user->avatar)
             ->setDescription("__**A free and open-source ModMail bot written in PHP.**__\n
                 This bot is free software, and you are welcome to redistribute it under certain conditions.
@@ -32,7 +36,10 @@ class AboutCommand extends Command
             ->addFieldValues("Version", $version, true)
             ->addFieldValues("Source Code", $github, true)
             ->addFieldValues("License", $license, true)
-        ;
+            ->addFieldValues("Author", $author, true)
+            ->addFieldValues("Support", $support, true)
+            ->setFooter("Copyright © Ar Rakin " . date('Y') . ". All rights reserved.");
+
         $builder = MessageBuilder::new()
             ->addEmbed($embed);
 

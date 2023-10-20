@@ -6,9 +6,15 @@ trait IsDataClass
 {
     public function __construct(array $data = [])
     {
-        foreach (array_keys((array) $this) as $key) {
-            if (array_key_exists($key, $data)) {
-                $this->$key = $data[$key];
+        $array = $data;
+
+        if (method_exists($this, 'transformData')) {
+            $array = $this->transformData($array);
+        }
+
+        foreach (array_keys($array) as $key) {
+            if (array_key_exists($key, $array)) {
+                $this->$key = $array[$key];
             }
         }
     }

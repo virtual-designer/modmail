@@ -1,6 +1,7 @@
 <?php
 
 use App\Core\Application;
+use App\Core\Config;
 use Discord\Parts\Embed\Embed;
 
 function app(): Application
@@ -16,4 +17,9 @@ function discord(): \Discord\Discord
 function embed(): Embed
 {
     return new Embed(discord());
+}
+
+function config(): Config
+{
+    return Application::$instance->configManager->config;
 }

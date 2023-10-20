@@ -4,12 +4,6 @@
     "type": "project",
     "license": "AGPL-3.0-or-later",
     "version": "1.0.0",
-    "repositories": [
-        {
-            "type": "vcs",
-            "url": "https://github.com/virtual-designer/modmail"
-        }
-    ],
     "autoload": {
         "psr-4": {
             "App\\": "src/app"
@@ -30,6 +24,7 @@
         "team-reflex/discord-php": "^7.3",
         "vlucas/phpdotenv": "^5.5",
         "symfony/var-dumper": "^6.3",
-        "react/async": "^4.1"
+        "react/async": "^4.1",
+        "symfony/validator": "^6.3"
     }
 }

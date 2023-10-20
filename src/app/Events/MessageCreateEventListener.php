@@ -16,9 +16,7 @@ class MessageCreateEventListener extends EventListener
             return;
         }
 
-        Log::info("[@{$message->author->username}]: {$message->content}");
-
-        $prefix = '=';
+        $prefix = $this->application->configManager->config->prefix;
 
         if (!str_starts_with($message->content, $prefix)) {
             return;
@@ -43,9 +41,13 @@ class MessageCreateEventListener extends EventListener
             'args' => $args,
             'argv' => $argv,
             'isLegacy' => true,
-            'isInteraction' => false
+            'isInteraction' => false,
+            'argc' => count($args),
+            'prefix' => $prefix,
+            'commandName' => $name
         ]);
 
+        Log::debug("Running command: {$name}");
         $command->run($message, $context);
     }
 }
