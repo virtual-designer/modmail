@@ -11,7 +11,7 @@ jobs:
     - uses: actions/checkout@v3
 
     - name: Install PHP
-      run: sudo apt-add-repository ppa:ondrej/php -y && sudo apt update && sudo apt install php8.2
+      run: sudo apt-add-repository ppa:ondrej/php -y && sudo apt update && sudo apt install php8.2 -y
 
     - name: Validate composer.json and composer.lock
       run: composer validate --strict || echo 'Validation failed'
