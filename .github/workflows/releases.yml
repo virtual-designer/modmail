@@ -19,7 +19,7 @@ jobs:
         id: changelog
         uses: TriPSs/conventional-changelog-action@v3.15.0
         with:
-          github-token: ${{ secrets.ACTION_USER_SECRET }}
+          github-token: ${{ secrets.GITHUB_TOKEN }}
           version-file: './composer.json'
           git-user-name: "Conventional Release Action"
           git-user-email: rakinar2@onesoftnet.eu.org
@@ -28,7 +28,7 @@ jobs:
         uses: actions/create-release@v1
         if: ${{ steps.changelog.outputs.skipped == 'false' }}
         env:
-          GITHUB_TOKEN: ${{ secrets.ACTION_USER_SECRET }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           tag_name: ${{ steps.changelog.outputs.tag }}
           release_name: ${{ steps.changelog.outputs.tag }}
