@@ -23,6 +23,9 @@ class Config
     #[Assert\NotBlank]
     public string $mailCategory;
 
+    public ?string $mainGuild = null;
+    public bool $cacheThreads = false;
+
     #[Assert\NotBlank]
     #[Assert\LessThanOrEqual(0xffffff)]
     #[Assert\GreaterThanOrEqual(0x000000)]

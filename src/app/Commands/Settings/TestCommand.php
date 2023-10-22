@@ -4,9 +4,13 @@ namespace App\Commands\Settings;
 
 use App\Core\Command;
 use App\Core\CommandContext;
+use App\Facades\Mail;
 use App\Models\Thread;
+use Discord\Parts\Channel\Channel;
 use Discord\Parts\Channel\Message;
 use Discord\Parts\Interactions\Interaction;
+use Discord\Repository\Guild\ChannelRepository;
+use function React\Async\await;
 
 class TestCommand extends Command
 {
@@ -16,14 +20,6 @@ class TestCommand extends Command
 
     public function execute(Message | Interaction $message, CommandContext $context): void
     {
-        $thread = Thread::create([
-            "channelId" => $message->channel_id,
-            "userId" => $message->member->user->id,
-            "createdById" => discord()->user->id
-        ]);
 
-        dump($thread);
-
-        $this->success("Successfully inserted entry with ID: {$thread->id}");
     }
 }

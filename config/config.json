@@ -4,5 +4,7 @@
     "systemAdmins": ["774553653394538506"],
     "allowedRoles": ["1156617822785511446"],
     "allowedUsers": [],
-    "mailCategory": "959663584080703538"
+    "mailCategory": "959663584080703538",
+    "cacheThreads": false,
+    "mainGuild": "911987536379912193"
 }

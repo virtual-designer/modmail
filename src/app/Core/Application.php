@@ -7,6 +7,7 @@ use App\Events\ReadyEventListener;
 use App\Log\Log;
 use App\Services\ConfigManager;
 use App\Services\DatabaseService;
+use App\Services\MailService;
 use Discord\Discord;
 use Discord\Exceptions\IntentException;
 use Discord\WebSockets\Intents;
@@ -22,6 +23,7 @@ final class Application
     public readonly CommandManager $commandManager;
     public readonly ConfigManager $configManager;
     public readonly DatabaseService $databaseService;
+    public readonly MailService $mailService;
 
     public function __construct(public readonly ?string $configFilePath = null)
     {
@@ -54,6 +56,7 @@ final class Application
                 Intents::GUILDS,
                 Intents::GUILD_MESSAGES,
                 Intents::MESSAGE_CONTENT,
+                Intents::DIRECT_MESSAGES,
             ],
             'logger' => new Logger('discord')
         ];
@@ -97,6 +100,7 @@ final class Application
         return [
             'configManager' => ConfigManager::class,
             'databaseService' => DatabaseService::class,
+            'mailService' => MailService::class,
         ];
     }
 
