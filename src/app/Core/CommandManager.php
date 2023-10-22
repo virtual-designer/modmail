@@ -12,7 +12,7 @@ class CommandManager
 
     protected array $commands = [];
     protected const COMMAND_DIR = __DIR__ . "/../Commands";
-    protected const COMMAND_NAMESPACE = '\\App\\Commands\\';
+    protected const COMMAND_NAMESPACE = '\\App\\Commands';
 
     protected function addCommandWithName(string $name, Command $command): void
     {
@@ -34,16 +34,31 @@ class CommandManager
         }
     }
 
-    public function autoload(): void
+    public function autoload(string $directory = self::COMMAND_DIR, string $namespace = self::COMMAND_NAMESPACE): void
     {
-        $files = scandir(static::COMMAND_DIR);
+        $files = scandir($directory);
 
         foreach ($files as $fileName) {
-            if (!is_file(static::COMMAND_DIR . "/" . $fileName)) {
+            if ($fileName === ".." || $fileName === '.') {
                 continue;
             }
 
-            $command = new (static::COMMAND_NAMESPACE . explode('.', $fileName)[0])($this->application);
+            $file = $directory . "/" . $fileName;
+
+            if (is_dir($file)) {
+                $this->autoload($file, $namespace . "\\" . basename($file));
+                continue;
+            }
+
+            if (!str_ends_with($fileName, '.php')) {
+                continue;
+            }
+
+            if (!is_file($file)) {
+                continue;
+            }
+
+            $command = new ($namespace . "\\" . explode('.', $fileName)[0])($this->application);
             $this->addCommand($command);
         }
     }

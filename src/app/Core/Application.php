@@ -6,37 +6,39 @@ use App\Events\MessageCreateEventListener;
 use App\Events\ReadyEventListener;
 use App\Log\Log;
 use App\Services\ConfigManager;
+use App\Services\DatabaseService;
 use Discord\Discord;
 use Discord\Exceptions\IntentException;
 use Discord\WebSockets\Intents;
 use Monolog\Logger;
+use Symfony\Component\VarDumper\Cloner\Data;
 
 final class Application
 {
 
     public static self $instance;
     private static bool $instanceCreated = false;
-    public readonly Discord $discord;
+    public Discord $discord;
     public readonly CommandManager $commandManager;
     public readonly ConfigManager $configManager;
+    public readonly DatabaseService $databaseService;
 
-    /**
-     * @throws IntentException
-     */
     public function __construct(public readonly ?string $configFilePath = null)
     {
-        $options = $this->options();
-        $this->discord = new Discord($options);
-
         if (!self::$instanceCreated) {
             self::$instance = $this;
             self::$instanceCreated = true;
         }
     }
 
-    public function boot(): void
+    /**
+     * @throws IntentException
+     */
+    public function boot(?array $services = null): void
     {
-        $this->loadServices();
+        $options = $this->options();
+        $this->discord = new Discord($options);
+        $this->loadServices($services);
         $this->commandManager = new CommandManager($this);
         $this->commandManager->autoload();
         $this->loadEventListeners();
@@ -45,7 +47,7 @@ final class Application
     private function options(): array
     {
         return [
-            'token' => $_ENV[EnvironmentVariable::BOT_TOKEN],
+            'token' => $_ENV[Env::BOT_TOKEN],
             'loadAllMembers' => true,
             'intents' => [
                 Intents::GUILD_MEMBERS,
@@ -93,14 +95,18 @@ final class Application
     private function services(): array
     {
         return [
-            'configManager' => ConfigManager::class
+            'configManager' => ConfigManager::class,
+            'databaseService' => DatabaseService::class,
         ];
     }
 
-    private function loadServices(): void
+    public function loadServices(?array $services = null, bool $log = true): void
     {
-        foreach ($this->services() as $key => $service) {
-            Log::info("Loading service: {$service} => {$key}");
+        foreach ($services ?? $this->services() as $key => $service) {
+            if ($log) {
+                Log::info("Loading service: {$service}");
+            }
+
             $this->$key = new $service($this);
             $this->$key->boot();
         }

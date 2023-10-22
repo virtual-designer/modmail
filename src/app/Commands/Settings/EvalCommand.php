@@ -1,14 +1,11 @@
 <?php
 
-namespace App\Commands;
+namespace App\Commands\Settings;
 
 use App\Core\Command;
 use App\Core\CommandContext;
-use App\Log\Log;
-use Composer\InstalledVersions;
 use Discord\Builders\MessageBuilder;
 use Discord\Parts\Channel\Message;
-use Discord\Parts\Embed\Embed;
 use Discord\Parts\Interactions\Interaction;
 
 class EvalCommand extends Command
