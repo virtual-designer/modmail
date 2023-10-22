@@ -20,7 +20,7 @@ class AboutCommand extends Command
     public function __construct(Application $application)
     {
         parent::__construct($application);
-        $this->version = json_decode(file_get_contents(__DIR__ . "/../../../../composer.json"))['version'];
+        $this->version = json_decode(file_get_contents(__DIR__ . "/../../../../composer.json"))->version;
     }
 
     public function execute(Message | Interaction $message, CommandContext $context): void

@@ -3,8 +3,10 @@
 namespace App\Mail;
 
 use App\Core\Application;
+use Discord\Parts\Channel\Message;
 use Discord\Parts\User\User;
 use ErrorException;
+use Throwable;
 
 class MailBuilder
 {
@@ -12,6 +14,7 @@ class MailBuilder
     protected ?User $createdBy = null;
     protected ?string $categoryId = null;
     protected ?User $user = null;
+    protected ?Message $message = null;
 
     public function __construct(Application $application)
     {
@@ -42,15 +45,21 @@ class MailBuilder
         return $this;
     }
 
-    protected function validate(): bool
+    public function withInitialMessage(Message $message): static
+    {
+        $this->message = $message;
+        return $this;
+    }
+
+    public function validate(): bool
     {
         return $this->user && $this->categoryId;
     }
 
     /**
-     * @throws ErrorException
+     * @throws ErrorException|Throwable
      */
-    public function create()
+    public function create(): MailThread
     {
         if (!$this->validate()) {
             throw new ErrorException("Data validation failed: could not create mail thread");
@@ -60,6 +69,24 @@ class MailBuilder
             'createdBy' => $this->createdBy,
             'user' => $this->user,
             'categoryId' => $this->categoryId,
+            'message' => $this->message,
+        ]);
+    }
+
+    /**
+     * @throws ErrorException|Throwable
+     */
+    public function fetchOrCreate(): MailThread
+    {
+        if (!$this->validate()) {
+            throw new ErrorException("Data validation failed: could not create mail thread");
+        }
+
+        return $this->application->mailService->fetchOrCreate([
+            'createdBy' => $this->createdBy,
+            'user' => $this->user,
+            'categoryId' => $this->categoryId,
+            'message' => $this->message,
         ]);
     }
 }

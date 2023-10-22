@@ -4,9 +4,13 @@ namespace App\Services;
 
 use App\Core\Service;
 use App\Mail\MailBuilder;
+use App\Mail\MailThread;
 use App\Models\Thread;
+use Discord\Parts\Channel\Attachment;
 use Discord\Parts\Channel\Channel;
+use Discord\Parts\Channel\Message;
 use Discord\Parts\User\User;
+use React\Promise\ExtendedPromiseInterface;
 use Throwable;
 use function React\Async\await;
 
@@ -24,13 +28,16 @@ class MailService extends Service
 
     /**
      * @param array $params
-     * @return array [Thread, Channel]
+     * @return MailThread
      * @throws Throwable
      */
-    public function create(array $params)
+    public function create(array $params): MailThread
     {
         /** @var User $user */
         $user = $params['user'];
+
+        /** @var Message|null $message */
+        $message = $params['message'];
 
         $partialChannel = guildCheck()->channels->create(attributes: [
             'name' => $user->username,
@@ -49,20 +56,75 @@ class MailService extends Service
             'channelId' => $channel->id
         ]);
 
-        await($channel->sendEmbed(
-            embed()
-                ->setTitle("Incoming mail")
-                ->setAuthor($user->username, $user->avatar, "https://discord.com/channels/{$channel->guild_id}/{$channel->id}")
-                ->setThumbnail($user->avatar)
-                ->setDescription("A new thread was created by <@{$thread->createdById}>. The conversation begins here.")
-                ->addFieldValues("Thread ID", $thread->id . '', true)
-                ->addFieldValues("User", "{$user->username} ({$user->id})", true)
-                ->addFieldValues("Created By", "{$createdBy->username} ({$createdBy->id})", true)
-                ->setFooter("Thread Created")
-                ->setTimestamp()
-                ->setColor(0x007bff)
-        ));
+        $mailThread = new MailThread(
+            thread: $thread,
+            channel: $channel,
+            user: $user,
+            createdBy: $createdBy,
+            isNew: true
+        );
 
-        return [$thread, $channel];
+        await($mailThread->sendIntroductoryMessage());
+
+        if ($message) {
+            await($mailThread->makeReplyToThread($message));
+        }
+
+        return $mailThread;
+    }
+
+    /**
+     * @throws Throwable
+     */
+    public function fetchOrCreate(array $params): MailThread
+    {
+        /** @var User $user */
+        $user = $params['user'];
+
+        /** @var User $createdBy */
+        $createdBy = $params['createdBy'];
+
+
+        $thread = Thread::where('userId', $user->id)
+            ->where('isArchived', false)
+            ->first();
+
+        if (!$thread) {
+            return $this->create($params);
+        }
+
+        /** @var Channel $channel */
+        $channel = discord()->getChannel($thread->channelId);
+
+        /** @var Message|null $message */
+        $message = $params['message'];
+
+        $mailThread = new MailThread(
+            thread: $thread,
+            channel: $channel,
+            user: $user,
+            createdBy: $createdBy
+        );
+
+        if ($message) {
+            await($mailThread->makeReplyToThread($message));
+        }
+
+        return $mailThread;
+    }
+
+    /**
+     * @throws Throwable
+     */
+    protected function sendMessageInThreadChannel(Channel $channel, User $user, ?string $content = null): ExtendedPromiseInterface
+    {
+        return $channel->sendEmbed(
+            embed()
+                ->setAuthor($user->username, $user->avatar, "https://discord.com/channels/{$channel->guild_id}/{$channel->id}")
+                ->setDescription($content ?? "*No content*")
+                ->setColor(0x007bff)
+                ->setFooter("Received ● {$user->id}")
+                ->setTimestamp()
+        );
     }
 }

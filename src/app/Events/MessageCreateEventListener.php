@@ -10,23 +10,29 @@ use Discord\Builders\MessageBuilder;
 use Discord\Discord;
 use Discord\Parts\Channel\Channel;
 use Discord\Parts\Channel\Message;
+use ErrorException;
+use Exception;
+use Throwable;
 
 class MessageCreateEventListener extends EventListener
 {
+    /**
+     * @throws ErrorException
+     * @throws Exception|Throwable
+     */
     protected function directMessage(Message $message, Discord $discord): void
     {
         if ($message->content === '') {
             return;
         }
 
-        [$thread] = Mail::new()
+        $mail = Mail::new()
             ->withUser($message->author)
             ->withCreatedBy($message->author)
-            ->create();
+            ->withInitialMessage($message)
+            ->fetchOrCreate();
 
-        // TODO
-
-        $message->reply("A new mail thread has been created. We'll get back to you as soon as possible. The thread ID is **{$thread->id}**.");
+        $mail->confirmUser($message);
     }
 
     public function onMessageCreate(Message $message, Discord $discord): void
