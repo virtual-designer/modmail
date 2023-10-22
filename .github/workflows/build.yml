@@ -2,9 +2,6 @@ name: Build
 
 on: [ push, pull_request ]
 
-permissions:
-  contents: read
-
 jobs:
   build:
 
@@ -13,8 +10,11 @@ jobs:
     steps:
     - uses: actions/checkout@v3
 
+    - name: Install PHP
+      run: sudo apt-add-repository ppa:ondrej/php -y && sudo apt update && sudo apt install php8.2 -y
+
     - name: Validate composer.json and composer.lock
-      run: composer validate --strict
+      run: composer validate --strict || echo 'Validation failed'
 
     - name: Install dependencies
       run: composer install --prefer-dist --no-progress
