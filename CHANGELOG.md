@@ -1,4 +1,13 @@
-# 1.1.0 (2023-10-22)
+# [1.2.0](https://github.com/virtual-designer/modmail/compare/v1.1.0...v1.2.0) (2023-10-22)
+
+
+### Features
+
+* basic mailing ([61a22bc](https://github.com/virtual-designer/modmail/commit/61a22bc10efb6c7feb25d0642c3c38129c47ba10))
+
+
+
+# [1.1.0](https://github.com/virtual-designer/modmail/compare/29444d46632d04415ff5ad7f72cc459e3510e4ce...v1.1.0) (2023-10-22)
 
 
 ### Bug Fixes
