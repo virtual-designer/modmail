@@ -2,8 +2,13 @@
 
 namespace App\Core;
 
+use App\Log\Log;
 use Discord\Parts\Channel\Message;
 use Discord\Parts\Interactions\Interaction;
+use Discord\Parts\User\User;
+use Exception;
+use Throwable;
+use function React\Async\await;
 
 abstract class Command
 {
@@ -126,5 +131,20 @@ abstract class Command
         }
 
         return true;
+    }
+
+    public function parseUser(int | string $arg): ?User
+    {
+        $arg = is_int($arg) ? $this->context->args[$arg] : $arg;
+        $id = preg_match('/^<@(!)?\d+>$/', $arg) ? substr($arg, str_contains($arg, '!') ? 3 : 2, -1) : $arg;
+
+        try {
+            return await($this->application->discord->users->fetch($id));
+        }
+        catch (Throwable $exception) {
+            Log::error($exception->__toString());
+        }
+
+        return null;
     }
 }

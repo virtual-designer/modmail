@@ -17,10 +17,10 @@ readonly class MailThread
     public Thread $thread;
     public Channel $channel;
     public User $user;
-    public User $createdBy;
+    public ?User $createdBy;
     public bool $isNew;
 
-    public function __construct(Thread $thread, Channel $channel, User $user, User $createdBy, bool $isNew = false)
+    public function __construct(Thread $thread, Channel $channel, User $user, ?User $createdBy = null, bool $isNew = false)
     {
         $this->thread = $thread;
         $this->channel = $channel;
@@ -77,15 +77,31 @@ readonly class MailThread
 
     /**
      * @throws Exception
+     * @throws Throwable
      */
-    public function makeReplyToUser(?Message $forwardable): ExtendedPromiseInterface
+    public function makeReplyToUser(array $params = [], bool $anonymous = false): ExtendedPromiseInterface
     {
+        $username = $anonymous ? "Staff" : $params['author']->username;
+        $avatar = $anonymous ? discord()->user->avatar : $params['author']->avatar;
+
+        await($this->user->sendMessage(
+            MessageBuilder::new()
+                ->addEmbed(
+                    embed()
+                        ->setAuthor($username, $avatar)
+                        ->setDescription($params['content'] !== '' ? $params['content'] : "*No content*")
+                        ->setColor(0x007bff)
+                        ->setFooter("Received", $params['guild_icon'])
+                        ->setTimestamp()
+                )
+        ));
+
         return $this->channel->sendEmbed(
             embed()
-                ->setAuthor($forwardable->author->username, $forwardable->author->avatar, "https://discord.com/channels/{$this->channel->guild_id}/{$this->channel->id}")
-                ->setDescription($forwardable && $forwardable->content !== '' ? $forwardable->content : "*No content*")
+                ->setAuthor($params['author']->username, $params['author']->avatar, "https://discord.com/channels/{$this->channel->guild_id}/{$this->channel->id}")
+                ->setDescription($params['content'] !== '' ? $params['content'] : "*No content*")
                 ->setColor(0x007bff)
-                ->setFooter("Sent • {$forwardable->author->id}")
+                ->setFooter("Sent • {$params['author']->id}")
                 ->setTimestamp()
         );
     }

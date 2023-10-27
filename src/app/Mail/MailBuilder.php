@@ -79,10 +79,27 @@ class MailBuilder
     public function fetchOrCreate(): MailThread
     {
         if (!$this->validate()) {
-            throw new ErrorException("Data validation failed: could not create mail thread");
+            throw new ErrorException("Data validation failed: could not fetch or create mail thread");
         }
 
         return $this->application->mailService->fetchOrCreate([
+            'createdBy' => $this->createdBy,
+            'user' => $this->user,
+            'categoryId' => $this->categoryId,
+            'message' => $this->message,
+        ]);
+    }
+
+    /**
+     * @throws ErrorException|Throwable
+     */
+    public function fetch(): ?MailThread
+    {
+        if (!$this->validate()) {
+            throw new ErrorException("Data validation failed: could not fetch or create mail thread");
+        }
+
+        return $this->application->mailService->fetch([
             'createdBy' => $this->createdBy,
             'user' => $this->user,
             'categoryId' => $this->categoryId,

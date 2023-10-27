@@ -73,24 +73,17 @@ class MailService extends Service
         return $mailThread;
     }
 
-    /**
-     * @throws Throwable
-     */
-    public function fetchOrCreate(array $params): MailThread
+    public function fetch(array $params): ?MailThread
     {
         /** @var User $user */
         $user = $params['user'];
-
-        /** @var User $createdBy */
-        $createdBy = $params['createdBy'];
-
 
         $thread = Thread::where('userId', $user->id)
             ->where('isArchived', false)
             ->first();
 
         if (!$thread) {
-            return $this->create($params);
+            return null;
         }
 
         /** @var Channel $channel */
@@ -103,11 +96,24 @@ class MailService extends Service
             thread: $thread,
             channel: $channel,
             user: $user,
-            createdBy: $createdBy
         );
 
         if ($message) {
             await($mailThread->makeReplyToThread($message));
+        }
+
+        return $mailThread;
+    }
+
+    /**
+     * @throws Throwable
+     */
+    public function fetchOrCreate(array $params): MailThread
+    {
+        $mailThread = $this->fetch($params);
+
+        if (!$mailThread) {
+            return $this->create($params);
         }
 
         return $mailThread;
