@@ -1,3 +1,12 @@
+# [1.3.0](https://github.com/virtual-designer/modmail/compare/v1.2.0...v1.3.0) (2023-10-27)
+
+
+### Features
+
+* very basic reply command ([a3a2bf0](https://github.com/virtual-designer/modmail/commit/a3a2bf08529067a5ef706ca8e2d39d94a56f532d))
+
+
+
 # [1.2.0](https://github.com/virtual-designer/modmail/compare/v1.1.0...v1.2.0) (2023-10-22)
 
 
