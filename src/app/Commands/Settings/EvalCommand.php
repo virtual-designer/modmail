@@ -13,6 +13,7 @@ class EvalCommand extends Command
     protected string $name = "eval";
     protected bool $interactionBased = false;
     protected bool $systemAdminOnly = true;
+    protected string $description = "Evaluates inline expressions.";
 
     public function execute(Message | Interaction $message, CommandContext $context)
     {
@@ -79,6 +80,6 @@ class EvalCommand extends Command
         $builder = MessageBuilder::new()
             ->addEmbed($embed, ...$embeds);
 
-        return $message->reply($builder);
+        return $this->reply($builder);
     }
 }

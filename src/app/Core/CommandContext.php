@@ -2,6 +2,8 @@
 
 namespace App\Core;
 
+use Discord\Parts\Interactions\Interaction;
+
 class CommandContext
 {
     use IsDataClass;
@@ -13,4 +15,5 @@ class CommandContext
     public bool $isInteraction;
     public string $prefix;
     public string $commandName;
+    public Interaction $interaction;
 }

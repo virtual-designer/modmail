@@ -2,6 +2,8 @@
 
 use App\Core\Application;
 use App\Services\DatabaseService;
+use Discord\Builders\CommandBuilder;
+use Discord\Http\Endpoint;
 use Dotenv\Dotenv;
 
 use Symfony\Component\Console\Application as SymfonyApplication;
@@ -9,6 +11,7 @@ use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\ArrayInput;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
+use function React\Async\await;
 
 require_once __DIR__ . "/vendor/autoload.php";
 
@@ -132,6 +135,51 @@ $symfonyApplication
     ->register('start')
     ->setCode(function (InputInterface $input, OutputInterface $output) use ($application) {
         $application->boot();
+        $application->start();
+        return Command::SUCCESS;
+    });
+
+$symfonyApplication
+    ->register('commands:update')
+    ->setCode(function (InputInterface $input, OutputInterface $output) use ($application) {
+        $application->boot();
+
+        $application->discord->on('ready', function () use($application) {
+            $guild = guildCheck();
+            $commands = array_values(array_map(function (\App\Core\Command $command) {
+                dump($command->getName(), $command->getDescription());
+
+                $builder = CommandBuilder::new()
+                    ->setName($command->getName())
+                    ->setDescription($command->getDescription())
+                    ->setType(\Discord\Parts\Interactions\Command\Command::CHAT_INPUT);
+
+                foreach ($command->getOptions() as $option) {
+                    $builder->addOption($option);
+                }
+
+                return $builder->toArray();
+            }, array_filter(
+                $application->commandManager->getCommands(),
+                fn ($command, $key) => $command->getName() === $key && $command->isInteractionBased(), ARRAY_FILTER_USE_BOTH))
+            );
+
+            $body = json_encode($commands);
+
+            dump($commands);
+
+            await(discord()->getHttpClient()->put(
+                Endpoint::bind(Endpoint::GUILD_APPLICATION_COMMANDS,
+                    discord()->application->id,
+                    $guild->id
+                ),
+                $body,
+                [
+                    'Content-Type' => 'application/json'
+                ]
+            ));
+        });
+
         $application->start();
         return Command::SUCCESS;
     });

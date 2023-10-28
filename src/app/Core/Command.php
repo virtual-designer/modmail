@@ -3,10 +3,11 @@
 namespace App\Core;
 
 use App\Log\Log;
+use Discord\Builders\MessageBuilder;
 use Discord\Parts\Channel\Message;
+use Discord\Parts\Interactions\Command\Option;
 use Discord\Parts\Interactions\Interaction;
 use Discord\Parts\User\User;
-use Exception;
 use Throwable;
 use function React\Async\await;
 
@@ -22,6 +23,7 @@ abstract class Command
     protected bool $systemAdminOnly = false;
     protected bool $public = false;
     protected bool $mailOnly = false;
+    protected string $description = '';
     private Message | Interaction | null $message = null;
     private CommandContext | null $context = null;
 
@@ -65,6 +67,27 @@ abstract class Command
         return $this->name;
     }
 
+    /**
+     * @return string
+     */
+    public function getDescription(): string
+    {
+        return $this->description;
+    }
+
+    /**
+     * @return Option[]
+     */
+    public function getOptions(): array
+    {
+        return [];
+    }
+
+    protected function option(): Option
+    {
+        return new Option($this->application->discord);
+    }
+
     abstract public function execute(Message | Interaction $message, CommandContext $context);
 
     public function run(Message | Interaction $message, CommandContext $context): void
@@ -82,18 +105,18 @@ abstract class Command
 
     protected function error(string $text, Message | Interaction | null $message = null)
     {
-        return ($message ?? $this->message)->reply(":x: $text");
+        return $this->reply(builder: MessageBuilder::new()->setContent(":x: $text"), message: $message);
     }
     protected function success(string $text, Message | Interaction | null $message = null)
     {
-        return ($message ?? $this->message)->reply("$text");
+        return $this->reply(builder: MessageBuilder::new()->setContent("$text"), message: $message);
     }
 
     private function checkPermissions(Message | Interaction $message, CommandContext $context): bool
     {
         $systemAdmins = config()->systemAdmins;
 
-        if (in_array($message->author->id, $systemAdmins)) {
+        if (in_array($message->member->id, $systemAdmins)) {
             return true;
         }
 
@@ -105,7 +128,7 @@ abstract class Command
             return true;
         }
 
-        if (in_array($message->author->id, config()->allowedUsers)) {
+        if (in_array($message->member->id, config()->allowedUsers)) {
             return true;
         }
 
@@ -146,5 +169,24 @@ abstract class Command
         }
 
         return null;
+    }
+
+    public function reply(MessageBuilder | string $builder, bool $ephemeral = false, ?Message $message = null)
+    {
+        if (is_string($builder)) {
+            $builder = MessageBuilder::new()->setContent($builder);
+        }
+
+        $message = ($message ?? $this->message);
+
+        if ($this->context->isInteraction) {
+            if ($message->isResponded()) {
+                return $message->updateOriginalResponse($builder);
+            }
+
+            return $message->respondWithMessage($builder, $ephemeral);
+        }
+
+        return $message->reply($builder);
     }
 }

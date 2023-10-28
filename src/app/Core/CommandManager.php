@@ -3,13 +3,15 @@
 namespace App\Core;
 
 use App\Log\Log;
-use Illuminate\Support\Facades\App;
 use InvalidArgumentException;
 
 class CommandManager
 {
     use UsesApplication;
 
+    /**
+     * @var Command[]
+     */
     protected array $commands = [];
     protected const COMMAND_DIR = __DIR__ . "/../Commands";
     protected const COMMAND_NAMESPACE = '\\App\\Commands';

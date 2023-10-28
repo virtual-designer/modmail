@@ -3,6 +3,7 @@
 namespace App\Core;
 
 use Discord\Discord;
+use Discord\Parts\Interactions\Interaction;
 use Discord\Parts\Channel\Message;
 use Discord\WebSockets\Event;
 
@@ -10,6 +11,7 @@ use Discord\WebSockets\Event;
  *
  * @method void onReady(Discord $discord)
  * @method void onMessageCreate(Message $message, Discord $discord)
+ * @method void onInteractionCreate(Interaction $interaction, Discord $discord)
  */
 abstract class EventListener
 {
@@ -18,6 +20,7 @@ abstract class EventListener
     public const METHOD_MAP = [
         'onReady' => EventType::READY,
         'onMessageCreate' => Event::MESSAGE_CREATE,
+        'onInteractionCreate' => Event::INTERACTION_CREATE,
     ];
 
     public function __construct(Application $application)
@@ -40,7 +43,4 @@ abstract class EventListener
     {
         return $this->methods;
     }
-
-//    public function onReady(Discord $discord): void {}
-//    public function onMessageCreate(Message $message, Discord $discord): void {}
 }

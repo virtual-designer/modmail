@@ -2,6 +2,7 @@
 
 namespace App\Core;
 
+use App\Events\InteractionCreateEventListener;
 use App\Events\MessageCreateEventListener;
 use App\Events\ReadyEventListener;
 use App\Log\Log;
@@ -66,7 +67,8 @@ final class Application
     {
         return [
             ReadyEventListener::class,
-            MessageCreateEventListener::class
+            MessageCreateEventListener::class,
+            InteractionCreateEventListener::class
         ];
     }
 

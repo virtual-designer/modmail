@@ -13,8 +13,9 @@ use Discord\Parts\Interactions\Interaction;
 class AboutCommand extends Command
 {
     protected string $name = "about";
-    protected bool $interactionBased = false;
+    protected bool $interactionBased = true;
     protected bool $public = true;
+    protected string $description = "Shows information about the bot.";
     protected string $version;
 
     public function __construct(Application $application)
@@ -47,6 +48,6 @@ class AboutCommand extends Command
         $builder = MessageBuilder::new()
             ->addEmbed($embed);
 
-        $message->reply($builder);
+        $this->reply($builder);
     }
 }
