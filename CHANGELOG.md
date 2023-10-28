@@ -1,3 +1,12 @@
+# [1.4.0](https://github.com/virtual-designer/modmail/compare/v1.3.0...v1.4.0) (2023-10-28)
+
+
+### Features
+
+* application command support ([406f87f](https://github.com/virtual-designer/modmail/commit/406f87f1004204362e8a16a095753ab9a350a183))
+
+
+
 # [1.3.0](https://github.com/virtual-designer/modmail/compare/v1.2.0...v1.3.0) (2023-10-27)
 
 
